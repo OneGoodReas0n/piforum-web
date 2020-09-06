@@ -1,0 +1,6 @@
+fragment PartialPost on Post {
+  id
+  title
+  text
+  creatorId
+}
