@@ -1,18 +1,17 @@
-import { Box, Button, Flex, IconButton, Stack, Text } from "@chakra-ui/core";
+import { Box, Button, Flex, Stack, Text } from "@chakra-ui/core";
 import { withUrqlClient } from "next-urql";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import Layout from "../components/Layout";
+import ManagePostButtons from "../components/ManagePostButtons";
 import PostBox from "../components/PostBox";
 import VoteSection from "../components/VoteSection";
 import {
   Post,
-  useDeletePostMutation,
   useMeQuery,
-  usePostsQuery,
+  usePostsQuery
 } from "../generated/graphql";
 import { createUrqlClient } from "../utils/createUrqlClient";
-import ManagePostButtons from "../components/ManagePostButtons";
 
 interface indexProps {}
 
@@ -24,8 +23,6 @@ const Index: React.FC<indexProps> = ({}) => {
   });
 
   const [{ data: meData }] = useMeQuery();
-  const [, deletePost] = useDeletePostMutation();
-
   const [{ data, fetching }] = usePostsQuery({
     variables,
   });
@@ -39,7 +36,7 @@ const Index: React.FC<indexProps> = ({}) => {
   }
 
   return (
-    <Layout variant="big" mt={8} mx="auto">
+  <Layout variant="big" mt={8} mx="auto">
       {!data ? (
         <Box>Loading...</Box>
       ) : (
