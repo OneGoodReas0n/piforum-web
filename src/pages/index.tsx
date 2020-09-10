@@ -8,7 +8,6 @@ import {
   Post,
   useMeQuery,
   usePostsQuery,
-  PostsQuery
 } from "../generated/graphql";
 import { withApollo } from "../utils/withApollo";
 

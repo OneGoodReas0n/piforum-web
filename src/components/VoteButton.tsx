@@ -8,36 +8,43 @@ interface VoteButtonProps {
   variant: "up" | "down";
 }
 
-const updateVoteAfter = (value: number, postId: number, cache: ApolloCache<VoteMutation>) => {
-  const data = cache.readFragment<{id: number, poinst:number, voteStatus: number | null}>(
-    {
-      id: 'Post:' + postId,
-      fragment: gql`
-          fragment _ on Post {
-            id
-            points
-            voteStatus
-          }
-        `,
-    }
-  )
-    if(data){
-      if(data.voteStatus === value){
-        return;
+const updateVoteAfter = (
+  value: number,
+  postId: number,
+  cache: ApolloCache<VoteMutation>
+) => {
+  const data = cache.readFragment<{
+    id: number;
+    points: number;
+    voteStatus: number | null;
+  }>({
+    id: "Post:" + postId,
+    fragment: gql`
+      fragment _ on Post {
+        id
+        points
+        voteStatus
       }
-      const newPoints = (data.poinst as number) + (!data.voteStatus ? 1 : 2) * value;
-      cache.writeFragment({
-        id: 'Post:'+postId,
-        fragment: gql`
-            fragment __ on Post {
-              points
-              voteStatus
-            }
-        `,
-        data: {points: newPoints, voteStatus:value} as any,
-      })
+    `,
+  });
+  if (data) {
+    if (data.voteStatus === value) {
+      return;
     }
+    const newPoints =
+      (data.points as number) + (!data.voteStatus ? 1 : 2) * value;
+    cache.writeFragment({
+      id: "Post:" + postId,
+      fragment: gql`
+        fragment __ on Post {
+          points
+          voteStatus
+        }
+      `,
+      data: { points: newPoints, voteStatus: value },
+    });
   }
+};
 
 const VoteButton: React.FC<VoteButtonProps> = ({ post, variant }) => {
   const [vote] = useVoteMutation();
@@ -64,7 +71,11 @@ const VoteButton: React.FC<VoteButtonProps> = ({ post, variant }) => {
         setVoteLoadingState(
           variant === "up" ? "upvote-loading" : "downvote-loading"
         );
-        await vote({ variables: {value: variant === "up" ? 1 : -1, postId: post.id} , update: (cache)=> updateVoteAfter(variant === "up" ? 1 : -1, post.id, cache)});
+        await vote({
+          variables: { value: variant === "up" ? 1 : -1, postId: post.id },
+          update: (cache) =>
+            updateVoteAfter(variant === "up" ? 1 : -1, post.id, cache),
+        });
         setVoteLoadingState("not-loading");
       }}
       isLoading={

@@ -5,7 +5,11 @@ import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { InputField } from "../../components/InputField";
 import { Wrapper } from "../../components/Wrapper";
-import { useChangePasswordMutation } from "../../generated/graphql";
+import {
+  useChangePasswordMutation,
+  MeQuery,
+  MeDocument,
+} from "../../generated/graphql";
 import { errorMap } from "../../utils/errorMap";
 import { withApollo } from "../../utils/withApollo";
 
@@ -33,11 +37,24 @@ const ChangePassword: React.FC<{}> = ({}) => {
               confirmPassword: "Passwords should be equal",
             });
           }
-          const response = await changePassword( {variables:{
-            token:
-              typeof router.query.token === "string" ? router.query.token : "",
-            password: newPassword,
-          }});
+          const response = await changePassword({
+            variables: {
+              token:
+                typeof router.query.token === "string"
+                  ? router.query.token
+                  : "",
+              password: newPassword,
+            },
+            update: (cache, { data }) => {
+              cache.writeQuery<MeQuery>({
+                query: MeDocument,
+                data: {
+                  __typename: "Query",
+                  me: data.changePassword.user,
+                },
+              });
+            },
+          });
           if (response.data.changePassword.errors) {
             if (
               response.data.changePassword.errors[0].field.includes("token")
@@ -96,4 +113,4 @@ const ChangePassword: React.FC<{}> = ({}) => {
   );
 };
 
-export default withApollo({ssr: false})(ChangePassword);
+export default withApollo({ ssr: false })(ChangePassword);
