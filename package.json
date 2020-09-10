@@ -9,6 +9,7 @@
     "gen": "graphql-codegen --config codegen.yml"
   },
   "dependencies": {
+    "@apollo/client": "^3.1.5",
     "@chakra-ui/core": "^0.5.2",
     "@emotion/core": "^10.0.27",
     "@emotion/styled": "^10.0.27",
@@ -16,6 +17,7 @@
     "emotion-theming": "^10.0.27",
     "graphql": "^15.3.0",
     "next": "^9.1.7",
+    "next-apollo": "^5.0.0",
     "next-urql": "^1.1.0",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
@@ -24,6 +26,9 @@
     "wonka": "^4.0.14"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^1.17.8",
+    "@graphql-codegen/typescript": "^1.17.9",
+    "@graphql-codegen/typescript-operations": "^1.17.8",
     "@graphql-codegen/typescript-react-apollo": "^2.0.6",
     "@types/node": "^14.6.0",
     "formik": "^2.1.5",
