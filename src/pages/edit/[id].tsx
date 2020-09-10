@@ -1,12 +1,10 @@
 import { Box, Button, Flex } from "@chakra-ui/core";
 import { Form, Formik } from "formik";
-import { withUrqlClient } from "next-urql";
 import { useRouter } from "next/router";
 import React from "react";
 import { InputField } from "../../components/InputField";
 import Layout from "../../components/Layout";
 import { usePostQuery, useUpdatePostMutation } from "../../generated/graphql";
-import { createUrqlClient } from "../../utils/createUrqlClient";
 import { errorMap } from "../../utils/errorMap";
 
 interface updatePostProps {}
@@ -15,24 +13,24 @@ const updatePost: React.FC<updatePostProps> = ({}) => {
   const router = useRouter();
   const postId =
     typeof router.query.id === "string" ? parseInt(router.query.id) : -1;
-  const [, updatePost] = useUpdatePostMutation();
-  const [{ data, fetching }] = usePostQuery({
-    pause: postId === -1,
+  const [updatePost] = useUpdatePostMutation();
+  const { data, loading } = usePostQuery({
+    skip: postId === -1,
     variables: {
       postId,
     },
   });
-  if (!fetching && data) {
+  if (!loading && data) {
     return (
       <Layout variant="regular" mx="auto" mt={8}>
         <Formik
           initialValues={{ title: data?.post.title, text: data?.post.text }}
           onSubmit={async (values, { setErrors }) => {
-            const { data } = await updatePost({
+            const { data } = await updatePost({variables:{
               id: postId,
               text: values.text,
               title: values.title,
-            });
+            }});
             if (data.updatePost.errors) {
               setErrors(errorMap(data.updatePost.errors));
             } else if (data.updatePost.post) {
@@ -89,4 +87,4 @@ const updatePost: React.FC<updatePostProps> = ({}) => {
   }
 };
 
-export default withUrqlClient(createUrqlClient)(updatePost);
+export default withApollo({ssr: false})(updatePost);

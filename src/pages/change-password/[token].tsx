@@ -1,18 +1,16 @@
 import { Box, Button, Flex } from "@chakra-ui/core";
 import { Form, Formik } from "formik";
-import { NextPage } from "next";
+import NextLink from "next/link";
+import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { InputField } from "../../components/InputField";
 import { Wrapper } from "../../components/Wrapper";
 import { useChangePasswordMutation } from "../../generated/graphql";
-import { useRouter } from "next/router";
 import { errorMap } from "../../utils/errorMap";
-import { withUrqlClient } from "next-urql";
-import { createUrqlClient } from "../../utils/createUrqlClient";
-import NextLink from "next/link";
+import { withApollo } from "../../utils/withApollo";
 
 const ChangePassword: React.FC<{}> = ({}) => {
-  const [, changePassword] = useChangePasswordMutation();
+  const [changePassword] = useChangePasswordMutation();
   const router = useRouter();
   const [tokenError, setTokenError] = useState("");
   return (
@@ -35,11 +33,11 @@ const ChangePassword: React.FC<{}> = ({}) => {
               confirmPassword: "Passwords should be equal",
             });
           }
-          const response = await changePassword({
+          const response = await changePassword( {variables:{
             token:
               typeof router.query.token === "string" ? router.query.token : "",
             password: newPassword,
-          });
+          }});
           if (response.data.changePassword.errors) {
             if (
               response.data.changePassword.errors[0].field.includes("token")
@@ -98,4 +96,4 @@ const ChangePassword: React.FC<{}> = ({}) => {
   );
 };
 
-export default withUrqlClient(createUrqlClient)(ChangePassword);
+export default withApollo({ssr: false})(ChangePassword);

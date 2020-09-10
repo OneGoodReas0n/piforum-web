@@ -13,7 +13,7 @@ const ManagePostButtons: React.FC<ManagePostButtonsProps> = ({
   variant = "listItem",
 }) => {
   const router = useRouter();
-  const [, deletePost] = useDeletePostMutation();
+  const [deletePost] = useDeletePostMutation();
   return (
     <Flex flexDirection="column" alignItems="center">
       <IconButton
@@ -37,11 +37,12 @@ const ManagePostButtons: React.FC<ManagePostButtonsProps> = ({
         fontSize={variant === "post" && "20px"}
         p={variant === "post" && 4}
         onClick={() => {
-          deletePost({ id });
-          if (router.pathname.includes("post")) {
-            router.push("/");
+          deletePost({
+            variables: { id } , update: (cache) => {
+              cache.evict({id: "Post" + id})
+            }});
           }
-        }}
+        }
       />
     </Flex>
   );

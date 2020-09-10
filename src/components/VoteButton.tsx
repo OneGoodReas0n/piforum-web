@@ -1,16 +1,46 @@
-import React, { useState } from "react";
 import { Button, Icon } from "@chakra-ui/core";
-import { Post, useVoteMutation, useMeQuery } from "../generated/graphql";
-import Router from "next/router";
+import React, { useState } from "react";
+import { Post, useVoteMutation, VoteMutation } from "../generated/graphql";
+import { gql, ApolloCache } from "@apollo/client";
 
 interface VoteButtonProps {
   post: Post;
   variant: "up" | "down";
 }
 
+const updateVoteAfter = (value: number, postId: number, cache: ApolloCache<VoteMutation>) => {
+  const data = cache.readFragment<{id: number, poinst:number, voteStatus: number | null}>(
+    {
+      id: 'Post:' + postId,
+      fragment: gql`
+          fragment _ on Post {
+            id
+            points
+            voteStatus
+          }
+        `,
+    }
+  )
+    if(data){
+      if(data.voteStatus === value){
+        return;
+      }
+      const newPoints = (data.poinst as number) + (!data.voteStatus ? 1 : 2) * value;
+      cache.writeFragment({
+        id: 'Post:'+postId,
+        fragment: gql`
+            fragment __ on Post {
+              points
+              voteStatus
+            }
+        `,
+        data: {points: newPoints, voteStatus:value} as any,
+      })
+    }
+  }
+
 const VoteButton: React.FC<VoteButtonProps> = ({ post, variant }) => {
-  const [, vote] = useVoteMutation();
-  const [{ data }] = useMeQuery();
+  const [vote] = useVoteMutation();
   const [voteLoadingState, setVoteLoadingState] = useState<
     "upvote-loading" | "downvote-loading" | "not-loading"
   >("not-loading");
@@ -34,8 +64,7 @@ const VoteButton: React.FC<VoteButtonProps> = ({ post, variant }) => {
         setVoteLoadingState(
           variant === "up" ? "upvote-loading" : "downvote-loading"
         );
-        await vote({ value: variant === "up" ? 1 : -1, postId: post.id });
-
+        await vote({ variables: {value: variant === "up" ? 1 : -1, postId: post.id} , update: (cache)=> updateVoteAfter(variant === "up" ? 1 : -1, post.id, cache)});
         setVoteLoadingState("not-loading");
       }}
       isLoading={

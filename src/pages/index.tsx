@@ -1,7 +1,5 @@
 import { Box, Button, Flex, Stack, Text } from "@chakra-ui/core";
-import { withUrqlClient } from "next-urql";
-import { useRouter } from "next/router";
-import React, { useState } from "react";
+import React from "react";
 import Layout from "../components/Layout";
 import ManagePostButtons from "../components/ManagePostButtons";
 import PostBox from "../components/PostBox";
@@ -9,25 +7,25 @@ import VoteSection from "../components/VoteSection";
 import {
   Post,
   useMeQuery,
-  usePostsQuery
+  usePostsQuery,
+  PostsQuery
 } from "../generated/graphql";
-import { createUrqlClient } from "../utils/createUrqlClient";
+import { withApollo } from "../utils/withApollo";
 
 interface indexProps {}
 
 const Index: React.FC<indexProps> = ({}) => {
-  const router = useRouter();
-  const [variables, setVariables] = useState({
-    limit: 10,
-    cursor: null as null | string,
+
+  const { data: meData} = useMeQuery();
+  const { data, loading, fetchMore, variables } = usePostsQuery({
+    variables:{
+      limit:10,
+      cursor: null
+    },
+    notifyOnNetworkStatusChange:true 
   });
 
-  const [{ data: meData }] = useMeQuery();
-  const [{ data, fetching }] = usePostsQuery({
-    variables,
-  });
-
-  if (!fetching && !data) {
+  if (!loading && !data) {
     return (
       <Box>
         <Text>You don't have data for some reason</Text>
@@ -66,11 +64,13 @@ const Index: React.FC<indexProps> = ({}) => {
             m="auto"
             mb={8}
             onClick={() => {
-              setVariables({
-                limit: variables.limit,
+              fetchMore({variables:{
+                limit: variables?.limit,
                 cursor: data.posts.posts[data.posts.posts.length - 1].createdAt,
+              },
               });
             }}
+            isLoading={loading}
           >
             load more
           </Button>
@@ -80,4 +80,4 @@ const Index: React.FC<indexProps> = ({}) => {
   );
 };
 
-export default withUrqlClient(createUrqlClient, { ssr: true })(Index);
+export default withApollo({ssr: true})(Index);

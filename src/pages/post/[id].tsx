@@ -7,6 +7,7 @@ import PostBox from "../../components/PostBox";
 import { Post, usePostQuery } from "../../generated/graphql";
 import { createUrqlClient } from "../../utils/createUrqlClient";
 import ManagePostButtons from "../../components/ManagePostButtons";
+import { withApollo } from "../../utils/withApollo";
 
 interface Props {}
 
@@ -14,16 +15,16 @@ const PostPage: React.FC<Props> = ({}) => {
   const router = useRouter();
   const intId =
     typeof router.query.id === "string" ? parseInt(router.query.id) : -1;
-  const [{ fetching, data, error }] = usePostQuery({
-    pause: intId === -1,
+  const { loading, data, error } = usePostQuery({
+    skip: intId === -1,
     variables: {
       postId: intId,
     },
   });
 
-  if (fetching) {
+  if (loading) {
     return <div>Loading...</div>;
-  } else if (!fetching && data?.post) {
+  } else if (!loading && data?.post) {
     return (
       <Layout variant="regular" mx="auto" mt={8}>
         <Flex justifyContent="space-between">
@@ -47,4 +48,4 @@ const PostPage: React.FC<Props> = ({}) => {
   }
 };
 
-export default withUrqlClient(createUrqlClient)(PostPage);
+export default withApollo({ssr: true})(PostPage);
