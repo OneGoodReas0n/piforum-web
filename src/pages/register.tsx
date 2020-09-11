@@ -1,13 +1,11 @@
-import React from "react";
-import { Formik, Form } from "formik";
 import { Box, Button, Flex } from "@chakra-ui/core";
-import { Wrapper } from "../components/Wrapper";
-import { InputField } from "../components/InputField";
-import { useRegisterMutation, MeQuery, MeDocument } from "../generated/graphql";
-import { errorMap } from "../utils/errorMap";
+import { Form, Formik } from "formik";
 import { useRouter } from "next/router";
-import { withUrqlClient } from "next-urql";
-import { createUrqlClient } from "../utils/createUrqlClient";
+import React from "react";
+import { InputField } from "../components/InputField";
+import { Wrapper } from "../components/Wrapper";
+import { MeDocument, MeQuery, useRegisterMutation } from "../generated/graphql";
+import { errorMap } from "../utils/errorMap";
 import { withApollo } from "../utils/withApollo";
 
 interface registerProps {}

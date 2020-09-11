@@ -4,18 +4,23 @@ import { useRouter } from "next/router";
 import React from "react";
 import { InputField } from "../components/InputField";
 import Layout from "../components/Layout";
-import { useCreatePostMutation } from "../generated/graphql";
+import CustomSpinner from "../components/Spinner";
+import { useCreatePostMutation, useMeQuery } from "../generated/graphql";
 import { useIsAuth } from "../utils/useIsAuth";
 import { withApollo } from "../utils/withApollo";
 
 const CreatePost: React.FC<{}> = ({}) => {
   const [createPost] = useCreatePostMutation();
+  const { data, loading } = useMeQuery();
   const router = useRouter();
-
   useIsAuth();
 
+  if (loading) {
+    return <CustomSpinner />;
+  }
+
   return (
-    <Layout variant="regular" mx="auto" mt={8}>
+    <Layout variant="regular" mx="auto" mt={8} meData={data}>
       <Formik
         initialValues={{ title: "", text: "" }}
         onSubmit={async (values, { setErrors }) => {

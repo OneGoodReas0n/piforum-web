@@ -1,30 +1,28 @@
-import { Box, Button, Flex, Stack, Text } from "@chakra-ui/core";
-import React from "react";
+import { Box, Button, Flex, Spinner, Stack, Text } from "@chakra-ui/core";
+import React, { useState } from "react";
 import Layout from "../components/Layout";
 import ManagePostButtons from "../components/ManagePostButtons";
 import PostBox from "../components/PostBox";
+import CustomSpinner from "../components/Spinner";
 import VoteSection from "../components/VoteSection";
-import {
-  Post,
-  useMeQuery,
-  usePostsQuery,
-} from "../generated/graphql";
+import { Post, useMeQuery, usePostsQuery } from "../generated/graphql";
 import { withApollo } from "../utils/withApollo";
 
 interface indexProps {}
 
 const Index: React.FC<indexProps> = ({}) => {
-
-  const { data: meData} = useMeQuery();
+  const { data: meData, loading: meDataLoading } = useMeQuery();
   const { data, loading, fetchMore, variables } = usePostsQuery({
-    variables:{
-      limit:10,
-      cursor: null
+    variables: {
+      limit: 10,
+      cursor: null,
     },
-    notifyOnNetworkStatusChange:true 
+    notifyOnNetworkStatusChange: true,
   });
 
-  if (!loading && !data) {
+  if (meDataLoading || loading) {
+    return <CustomSpinner />;
+  } else if (!loading && !data) {
     return (
       <Box>
         <Text>You don't have data for some reason</Text>
@@ -33,7 +31,7 @@ const Index: React.FC<indexProps> = ({}) => {
   }
 
   return (
-  <Layout variant="big" mt={8} mx="auto">
+    <Layout variant="big" mt={8} mx="auto" meData={meData}>
       {!data ? (
         <Box>Loading...</Box>
       ) : (
@@ -63,10 +61,12 @@ const Index: React.FC<indexProps> = ({}) => {
             m="auto"
             mb={8}
             onClick={() => {
-              fetchMore({variables:{
-                limit: variables?.limit,
-                cursor: data.posts.posts[data.posts.posts.length - 1].createdAt,
-              },
+              fetchMore({
+                variables: {
+                  limit: variables?.limit,
+                  cursor:
+                    data.posts.posts[data.posts.posts.length - 1].createdAt,
+                },
               });
             }}
             isLoading={loading}
@@ -79,4 +79,4 @@ const Index: React.FC<indexProps> = ({}) => {
   );
 };
 
-export default withApollo({ssr: true})(Index);
+export default withApollo({ ssr: true })(Index);
