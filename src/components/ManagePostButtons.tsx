@@ -38,11 +38,12 @@ const ManagePostButtons: React.FC<ManagePostButtonsProps> = ({
         p={variant === "post" && 4}
         onClick={() => {
           deletePost({
-            variables: { id } , update: (cache) => {
-              cache.evict({id: "Post" + id})
-            }});
-          }
-        }
+            variables: { id },
+            update: (cache) => {
+              cache.evict({ id: "Post:" + id });
+            },
+          });
+        }}
       />
     </Flex>
   );
