@@ -1,10 +1,10 @@
 import React from "react";
 import { Box, BoxProps } from "@chakra-ui/core";
-import { LayoutProps } from "../interfaces/LayoutProps";
+import { VariantProps } from "../interfaces/VariantProp";
 
-export const Wrapper: React.FC<LayoutProps & BoxProps> = ({
+export const Wrapper: React.FC<VariantProps & BoxProps> = ({
+  variant,
   children,
-  variant = "big",
   ...props
 }) => {
   return (

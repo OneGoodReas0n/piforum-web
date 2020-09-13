@@ -1,3 +1,3 @@
-export interface LayoutProps {
+export interface VariantProps {
   variant?: "small" | "regular" | "big";
 }
