@@ -12,11 +12,7 @@ import PostComponent from "../components/PostComponent";
 interface indexProps {}
 
 const Index: React.FC<indexProps> = ({}) => {
-<<<<<<< HEAD
-  const { data: meData } = useMeQuery();
-=======
   const { data: meData, loading: meDataLoading } = useMeQuery();
->>>>>>> 534bbdd901fc7a83f9bb4aa4f17b5ebd9c69e03d
   const { data, loading, fetchMore, variables } = usePostsQuery({
     variables: {
       limit: 10,
@@ -36,11 +32,7 @@ const Index: React.FC<indexProps> = ({}) => {
   }
 
   return (
-<<<<<<< HEAD
-    <Layout variant="big" mt={8} mx="auto">
-=======
     <Layout variant="big" mt={8} mx="auto" meData={meData}>
->>>>>>> 534bbdd901fc7a83f9bb4aa4f17b5ebd9c69e03d
       {!data ? (
         <Box>Loading...</Box>
       ) : (

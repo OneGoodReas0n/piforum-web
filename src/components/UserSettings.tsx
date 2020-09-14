@@ -20,9 +20,9 @@ const UserSettings: React.FC<UserSettingsProps> = ({}) => {
   return (
     <Box textAlign="center" bg="white" shadow="md" mt={-2} rounded="md">
       <Box p={3}>
-        <NextLink href="/me/settings">
+        <NextLink href="/me/profile">
           <Link>
-            <Text>Settings</Text>
+            <Text>My profile</Text>
           </Link>
         </NextLink>
         <Divider borderColor="gray.300" />
