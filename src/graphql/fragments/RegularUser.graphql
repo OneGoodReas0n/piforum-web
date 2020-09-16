@@ -2,4 +2,9 @@ fragment RegularUser on User {
   id
   username
   email
+  description
+  avatarId
+  avatar {
+    publicLink
+  }
 }

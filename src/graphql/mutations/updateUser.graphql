@@ -1,0 +1,5 @@
+mutation UpdateUser($username: String!, $bio: String, $publicLink: String) {
+  updateUser(
+    options: { username: $username, bio: $bio, publicLink: $publicLink }
+  )
+}
