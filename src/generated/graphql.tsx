@@ -17,7 +17,6 @@ export type Query = {
   me?: Maybe<User>;
   posts: PaginatedPosts;
   post?: Maybe<Post>;
-  voteInfo: VoteValue;
 };
 
 
@@ -31,12 +30,6 @@ export type QueryPostArgs = {
   id: Scalars['Int'];
 };
 
-
-export type QueryVoteInfoArgs = {
-  postId: Scalars['Int'];
-  userId: Scalars['Int'];
-};
-
 export type User = {
   __typename?: 'User';
   id: Scalars['Int'];
@@ -44,6 +37,17 @@ export type User = {
   updatedAt: Scalars['String'];
   username: Scalars['String'];
   email: Scalars['String'];
+  description?: Maybe<Scalars['String']>;
+  avatarId?: Maybe<Scalars['Int']>;
+  avatar?: Maybe<Avatar>;
+};
+
+export type Avatar = {
+  __typename?: 'Avatar';
+  id: Scalars['Int'];
+  publicLink: Scalars['String'];
+  createdAt: Scalars['String'];
+  updatedAt: Scalars['String'];
 };
 
 export type PaginatedPosts = {
@@ -66,11 +70,6 @@ export type Post = {
   textSnippet: Scalars['String'];
 };
 
-export type VoteValue = {
-  __typename?: 'VoteValue';
-  value?: Maybe<Scalars['Int']>;
-};
-
 export type Mutation = {
   __typename?: 'Mutation';
   changePassword: UserResponse;
@@ -78,6 +77,8 @@ export type Mutation = {
   register: UserResponse;
   login: UserResponse;
   logout: Scalars['Boolean'];
+  updateUser: Scalars['Boolean'];
+  deleteMe: Scalars['Boolean'];
   vote: Scalars['Boolean'];
   createPost: Post;
   updatePost?: Maybe<PostResponse>;
@@ -104,6 +105,11 @@ export type MutationRegisterArgs = {
 export type MutationLoginArgs = {
   password: Scalars['String'];
   usernameOrEmail: Scalars['String'];
+};
+
+
+export type MutationUpdateUserArgs = {
+  options: UserChangeFieldsInput;
 };
 
 
@@ -147,6 +153,12 @@ export type UsernamePasswordInput = {
   password: Scalars['String'];
 };
 
+export type UserChangeFieldsInput = {
+  username: Scalars['String'];
+  bio?: Maybe<Scalars['String']>;
+  publicLink?: Maybe<Scalars['String']>;
+};
+
 export type PostInput = {
   title: Scalars['String'];
   text: Scalars['String'];
@@ -157,6 +169,45 @@ export type PostResponse = {
   errors?: Maybe<Array<FieldError>>;
   post?: Maybe<Post>;
 };
+
+export type PartialPostFragment = (
+  { __typename?: 'Post' }
+  & Pick<Post, 'id' | 'title' | 'text' | 'creatorId'>
+);
+
+export type RegularErrorFragment = (
+  { __typename?: 'FieldError' }
+  & Pick<FieldError, 'field' | 'message'>
+);
+
+export type RegularPostFragment = (
+  { __typename?: 'Post' }
+  & Pick<Post, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'text' | 'textSnippet' | 'points' | 'voteStatus' | 'creatorId'>
+  & { creator: (
+    { __typename?: 'User' }
+    & RegularUserFragment
+  ) }
+);
+
+export type RegularUserFragment = (
+  { __typename?: 'User' }
+  & Pick<User, 'id' | 'username' | 'email' | 'description' | 'avatarId'>
+  & { avatar?: Maybe<(
+    { __typename?: 'Avatar' }
+    & Pick<Avatar, 'publicLink'>
+  )> }
+);
+
+export type RegularUserResponseFragment = (
+  { __typename?: 'UserResponse' }
+  & { errors?: Maybe<Array<(
+    { __typename?: 'FieldError' }
+    & RegularErrorFragment
+  )>>, user?: Maybe<(
+    { __typename?: 'User' }
+    & RegularUserFragment
+  )> }
+);
 
 export type ChangePasswordMutationVariables = Exact<{
   token: Scalars['String'];
@@ -185,6 +236,14 @@ export type CreatePostMutation = (
   ) }
 );
 
+export type DeleteMeMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type DeleteMeMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'deleteMe'>
+);
+
 export type DeletePostMutationVariables = Exact<{
   id: Scalars['Int'];
 }>;
@@ -203,41 +262,6 @@ export type ForgotPasswordMutationVariables = Exact<{
 export type ForgotPasswordMutation = (
   { __typename?: 'Mutation' }
   & Pick<Mutation, 'forgotPassword'>
-);
-
-export type PartialPostFragment = (
-  { __typename?: 'Post' }
-  & Pick<Post, 'id' | 'title' | 'text' | 'creatorId'>
-);
-
-export type RegularErrorFragment = (
-  { __typename?: 'FieldError' }
-  & Pick<FieldError, 'field' | 'message'>
-);
-
-export type RegularPostFragment = (
-  { __typename?: 'Post' }
-  & Pick<Post, 'id' | 'createdAt' | 'updatedAt' | 'title' | 'text' | 'textSnippet' | 'points' | 'voteStatus' | 'creatorId'>
-  & { creator: (
-    { __typename?: 'User' }
-    & RegularUserFragment
-  ) }
-);
-
-export type RegularUserFragment = (
-  { __typename?: 'User' }
-  & Pick<User, 'id' | 'username' | 'email'>
-);
-
-export type RegularUserResponseFragment = (
-  { __typename?: 'UserResponse' }
-  & { errors?: Maybe<Array<(
-    { __typename?: 'FieldError' }
-    & RegularErrorFragment
-  )>>, user?: Maybe<(
-    { __typename?: 'User' }
-    & RegularUserFragment
-  )> }
 );
 
 export type LoginMutationVariables = Exact<{
@@ -294,6 +318,18 @@ export type UpdatePostMutation = (
       & PartialPostFragment
     )> }
   )> }
+);
+
+export type UpdateUserMutationVariables = Exact<{
+  username: Scalars['String'];
+  bio?: Maybe<Scalars['String']>;
+  publicLink?: Maybe<Scalars['String']>;
+}>;
+
+
+export type UpdateUserMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'updateUser'>
 );
 
 export type VoteMutationVariables = Exact<{
@@ -362,6 +398,11 @@ export const RegularUserFragmentDoc = gql`
   id
   username
   email
+  description
+  avatarId
+  avatar {
+    publicLink
+  }
 }
     `;
 export const RegularPostFragmentDoc = gql`
@@ -466,6 +507,35 @@ export function useCreatePostMutation(baseOptions?: Apollo.MutationHookOptions<C
 export type CreatePostMutationHookResult = ReturnType<typeof useCreatePostMutation>;
 export type CreatePostMutationResult = Apollo.MutationResult<CreatePostMutation>;
 export type CreatePostMutationOptions = Apollo.BaseMutationOptions<CreatePostMutation, CreatePostMutationVariables>;
+export const DeleteMeDocument = gql`
+    mutation DeleteMe {
+  deleteMe
+}
+    `;
+export type DeleteMeMutationFn = Apollo.MutationFunction<DeleteMeMutation, DeleteMeMutationVariables>;
+
+/**
+ * __useDeleteMeMutation__
+ *
+ * To run a mutation, you first call `useDeleteMeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteMeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteMeMutation, { data, loading, error }] = useDeleteMeMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useDeleteMeMutation(baseOptions?: Apollo.MutationHookOptions<DeleteMeMutation, DeleteMeMutationVariables>) {
+        return Apollo.useMutation<DeleteMeMutation, DeleteMeMutationVariables>(DeleteMeDocument, baseOptions);
+      }
+export type DeleteMeMutationHookResult = ReturnType<typeof useDeleteMeMutation>;
+export type DeleteMeMutationResult = Apollo.MutationResult<DeleteMeMutation>;
+export type DeleteMeMutationOptions = Apollo.BaseMutationOptions<DeleteMeMutation, DeleteMeMutationVariables>;
 export const DeletePostDocument = gql`
     mutation DeletePost($id: Int!) {
   deletePost(id: $id)
@@ -660,6 +730,38 @@ export function useUpdatePostMutation(baseOptions?: Apollo.MutationHookOptions<U
 export type UpdatePostMutationHookResult = ReturnType<typeof useUpdatePostMutation>;
 export type UpdatePostMutationResult = Apollo.MutationResult<UpdatePostMutation>;
 export type UpdatePostMutationOptions = Apollo.BaseMutationOptions<UpdatePostMutation, UpdatePostMutationVariables>;
+export const UpdateUserDocument = gql`
+    mutation UpdateUser($username: String!, $bio: String, $publicLink: String) {
+  updateUser(options: {username: $username, bio: $bio, publicLink: $publicLink})
+}
+    `;
+export type UpdateUserMutationFn = Apollo.MutationFunction<UpdateUserMutation, UpdateUserMutationVariables>;
+
+/**
+ * __useUpdateUserMutation__
+ *
+ * To run a mutation, you first call `useUpdateUserMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateUserMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateUserMutation, { data, loading, error }] = useUpdateUserMutation({
+ *   variables: {
+ *      username: // value for 'username'
+ *      bio: // value for 'bio'
+ *      publicLink: // value for 'publicLink'
+ *   },
+ * });
+ */
+export function useUpdateUserMutation(baseOptions?: Apollo.MutationHookOptions<UpdateUserMutation, UpdateUserMutationVariables>) {
+        return Apollo.useMutation<UpdateUserMutation, UpdateUserMutationVariables>(UpdateUserDocument, baseOptions);
+      }
+export type UpdateUserMutationHookResult = ReturnType<typeof useUpdateUserMutation>;
+export type UpdateUserMutationResult = Apollo.MutationResult<UpdateUserMutation>;
+export type UpdateUserMutationOptions = Apollo.BaseMutationOptions<UpdateUserMutation, UpdateUserMutationVariables>;
 export const VoteDocument = gql`
     mutation Vote($value: Int!, $postId: Int!) {
   vote(value: $value, postId: $postId)

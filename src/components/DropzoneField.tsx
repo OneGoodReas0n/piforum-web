@@ -1,8 +1,11 @@
-import React, { CSSProperties, useMemo } from "react";
-import Dropzone, { useDropzone } from "react-dropzone";
+import { Box, Image } from "@chakra-ui/core";
+import React, { CSSProperties, useState } from "react";
+import { useDropzone } from "react-dropzone";
+import FileWithPreview from "../interfaces/FileWithPreview";
 
 interface DropzoneFieldProps {
-  setFile: (file: File) => void;
+  name: string;
+  setField: (field: string, value: any, shouldValidate?: boolean) => void;
 }
 
 const baseStyle: CSSProperties = {
@@ -12,44 +15,47 @@ const baseStyle: CSSProperties = {
   alignItems: "center",
   padding: "20px",
   borderWidth: 2,
-  borderRadius: 2,
+  borderRadius: 50,
   borderColor: "#eeeeee",
   borderStyle: "dashed",
   backgroundColor: "#fafafa",
   color: "#bdbdbd",
   outline: "none",
   transition: "border .24s ease-in-out",
+  cursor: "pointer",
+  lineHeight: "36px",
 };
 const style = {
   ...baseStyle,
 };
 
-const DropzoneField: React.FC<DropzoneFieldProps> = ({ setFile }) => {
+const DropzoneField: React.FC<DropzoneFieldProps> = ({ name, setField }) => {
+  const [photo, setPhoto] = useState({} as FileWithPreview);
+  const { getRootProps, getInputProps } = useDropzone({
+    accept: "image/*",
+    multiple: false,
+    onDrop: ([file]) => {
+      const updatedPhoto = Object.assign(file, {
+        preview: URL.createObjectURL(file),
+      });
+      setPhoto(updatedPhoto);
+      setField(name, updatedPhoto);
+    },
+  });
+
   return (
-    <main>
-      <Dropzone
-        accept="image/jpeg, image/img"
-        multiple={false}
-        onDrop={([file]) => {
-          setFile(file);
-        }}
-      >
-        {({ getRootProps, getInputProps }) => (
-          <div className="container">
-            <div
-              {...getRootProps({
-                className: "dropzone",
-                onDrop: (event) => event.stopPropagation(),
-                style,
-              })}
-            >
-              <input {...getInputProps()} />
-              <p>Drag 'n' drop some files here, or click to select files</p>
-            </div>
+    <Box w="80px" h="80px" my={2}>
+      {photo.preview ? (
+        <Image src={photo.preview} />
+      ) : (
+        <section className="container">
+          <div {...getRootProps({ className: "dropzone", style })}>
+            <input {...getInputProps()} />
+            <p>64x64</p>
           </div>
-        )}
-      </Dropzone>
-    </main>
+        </section>
+      )}
+    </Box>
   );
 };
 

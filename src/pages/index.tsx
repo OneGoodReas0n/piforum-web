@@ -32,7 +32,13 @@ const Index: React.FC<indexProps> = ({}) => {
   }
 
   return (
-    <Layout variant="big" mt={8} mx="auto" meData={meData}>
+    <Layout
+      variant="big"
+      mt={8}
+      mx="auto"
+      meData={meData}
+      meLoading={meDataLoading}
+    >
       {!data ? (
         <Box>Loading...</Box>
       ) : (

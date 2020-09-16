@@ -1,20 +1,14 @@
-import React from "react";
-import {
-  Box,
-  Text,
-  Stack,
-  Avatar,
-  Divider,
-  Link,
-  Button,
-} from "@chakra-ui/core";
+import { useApolloClient } from "@apollo/client";
+import { Box, Button, Divider, Link, Text } from "@chakra-ui/core";
 import NextLink from "next/link";
-import { ApolloClient, useApolloClient } from "@apollo/client";
+import { useRouter } from "next/router";
+import React from "react";
 import { useLogoutMutation } from "../generated/graphql";
 
 export interface UserSettingsProps {}
 
 const UserSettings: React.FC<UserSettingsProps> = ({}) => {
+  const router = useRouter();
   const [logout, { loading: logoutFetching }] = useLogoutMutation();
   const apolloClient = useApolloClient();
   return (
@@ -37,6 +31,8 @@ const UserSettings: React.FC<UserSettingsProps> = ({}) => {
           onClick={() => {
             logout();
             apolloClient.resetStore();
+            apolloClient.cache.evict({ fieldName: "me" });
+            router.push("/");
           }}
           variant="link"
           isLoading={logoutFetching}

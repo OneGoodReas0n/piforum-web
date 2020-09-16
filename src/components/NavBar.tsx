@@ -1,17 +1,17 @@
-import { useApolloClient } from "@apollo/client";
 import { Box, Button, Flex, Heading, Link } from "@chakra-ui/core";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
-import { MeQuery, useLogoutMutation } from "../generated/graphql";
-import { Wrapper } from "./Wrapper";
+import { MeQuery } from "../generated/graphql";
 import UserProfile from "./UserProfile";
+import { Wrapper } from "./Wrapper";
 
 interface NavBarProps {
   meData: MeQuery;
+  meLoading: boolean;
 }
 
-const NavBar: React.FC<NavBarProps> = ({ meData }) => {
+const NavBar: React.FC<NavBarProps> = ({ meData, meLoading }) => {
   const router = useRouter();
   let body = (
     <>
@@ -26,7 +26,11 @@ const NavBar: React.FC<NavBarProps> = ({ meData }) => {
   if (meData?.me) {
     body = (
       <Flex>
-        <UserProfile username={meData.me.username} />
+        <UserProfile
+          username={meData.me.username}
+          avatarLink={meData.me.avatar?.publicLink}
+          meLoading={meLoading}
+        />
       </Flex>
     );
   }

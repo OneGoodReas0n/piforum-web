@@ -7,17 +7,19 @@ import { VariantProps } from "../interfaces/VariantProp";
 
 interface LayoutProps extends VariantProps {
   meData: MeQuery;
+  meLoading: boolean;
 }
 
 const Layout: React.FC<LayoutProps & BoxProps> = ({
   meData,
+  meLoading,
   variant,
   children,
   ...props
 }) => {
   return (
     <>
-      <NavBar meData={meData} />
+      <NavBar meData={meData} meLoading={meLoading} />
       <Wrapper variant={variant} {...props}>
         {children}
       </Wrapper>

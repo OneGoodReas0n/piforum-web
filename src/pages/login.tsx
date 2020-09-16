@@ -30,6 +30,7 @@ const Login: React.FC<loginProps> = ({}) => {
                 },
               });
               cache.evict({ fieldName: "posts:{}" });
+              console.log("---Cache: ", cache);
             },
           });
           if (response.data.login.errors) {
